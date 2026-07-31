@@ -1,4 +1,6 @@
 :root {
+    color-scheme: dark;
+
     --text:              #e6edf3;
     --bg:                #0d1117;
     --header-border:     #30363d;                          /* Border below some headers */
@@ -12,7 +14,7 @@
 
     --input-text:        #e6edf3;                          /* <input>, <select> */
     --input-bg:          #0d1117;
-    --input-border:      #30363d;
+    --input-border:      #6e7681;
     --input-focus:       #58a6ff;                          /* Outline for focused inputs etc. */
     --fieldset-border:   #30363d;                          /* Border around setting boxes on the settings page */
     --form-error-text:   #ff7b72;
@@ -40,7 +42,7 @@
     --chart-grid:        #21262d;
     --hchart-border:     #2ea043;                          /* Colour when you hover the Browsers, Systems, etc. chart bar */
     --hchart-bar:        #238636;
-    --hchart-bar-hover:  #2ea043;
+    --hchart-bar-hover:  #163a22;
     --hchart-hover:      #30363d;                          /* Dangling var() reference found in pikaday.css (prev/next arrow hover bg); --link (#58a6ff) needs a neutral bg here, not the green hchart-bar-hover */
 
     --nav-bg:            #161b22;                          /* Navigation at dashboard, settings, and footer */

@@ -455,3 +455,12 @@ input:user-invalid { outline: 1px solid var(--invalid-outline) !important; box-s
 /* Calmer headings — the defaults are larger than the content warrants. */
 h2 { font-size: 1.25rem; letter-spacing: -.01em; }
 h3 { font-size: 1.05rem; }
+
+/* Hover text on horizontal chart bars (Browsers, Systems, Locations,
+ * Campaigns) sits directly over --hchart-bar-hover. Dark mode fixed this by
+ * darkening that token so --link keeps enough contrast against it. No light
+ * bar fill both clears 4.5:1 against --link and stays visually distinct from
+ * --chart-fill, so light mode instead swaps the hover text colour to --text,
+ * which does clear 4.5:1 against --hchart-bar-hover. This rule fires in both
+ * themes, but dark already gets its contrast from the token change above. */
+.load-detail:hover { color: var(--text); }

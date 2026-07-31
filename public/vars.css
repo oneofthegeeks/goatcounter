@@ -1,4 +1,6 @@
 :root {
+    color-scheme: light;
+
     --text:              #1f2328;
     --bg:                #fff;
     --header-border:     #d0d7de;                          /* Border below some headers */
@@ -12,7 +14,7 @@
 
     --input-text:        #1f2328;                          /* <input>, <select> */
     --input-bg:          #fff;
-    --input-border:      #d0d7de;
+    --input-border:      #8c959f;
     --input-focus:       #0969da;                          /* Outline for focused inputs etc. */
     --fieldset-border:   #d0d7de;                          /* Border around setting boxes on the settings page */
     --form-error-text:   #cf222e;
