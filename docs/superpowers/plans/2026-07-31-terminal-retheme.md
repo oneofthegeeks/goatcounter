@@ -891,26 +891,30 @@ git commit -m "feat(deploy): compose stack and GHCR deploy workflow
 Same bind mount, same port 8092, container name unchanged."
 ```
 
-- [ ] **Step 7: Merge to main and tag**
+- [ ] **Step 7: Merge to main and push — but do not tag**
 
 ```bash
 git checkout main
 git merge --no-ff geeks-theme -m "feat: terminal retheme and self-hosted deploy"
 git push -u origin main
-git tag -a geeks-v1.0.0 -m "geeks-v1.0.0: terminal retheme"
-git push origin geeks-v1.0.0
 ```
 
-- [ ] **Step 8: Watch the build**
+**Do not create or push the `geeks-v1.0.0` tag in this task.** Pushing it fires
+`deploy.yml`, which runs `docker compose up -d` on Poppy while the hand-made
+Unraid container still holds the name `goatcounter` — docker refuses to reuse a
+container name, so that deploy fails. The tag is pushed in Task 8, after the old
+container has been removed. This ordering was agreed with Taylor before execution.
+
+- [ ] **Step 8: Confirm the workflow is syntactically valid without running it**
 
 ```bash
-gh run list --workflow deploy.yml --limit 3
-gh run watch <run-id> --exit-status
+gh workflow list --repo oneofthegeeks/goatcounter
 ```
 
-Expected: green, and the image visible at `ghcr.io/oneofthegeeks/goatcounter:geeks-v1.0.0`.
+Expected: `Deploy` appears in the list, meaning GitHub parsed the YAML. It will
+not have run — its only trigger is a `geeks-v*` tag.
 
-**Note:** if the workflow deploys automatically on tag, it performs the production cutover — so Task 8's backup must already be in place before this tag is pushed. It is: Task 2 made it. Confirm `/mnt/user/appdata/goatcounter/backups/db-pre-geeks.sqlite3` still exists before pushing the tag.
+Task 7 ends here. Nothing has been deployed and production is untouched.
 
 ---
 
@@ -952,17 +956,28 @@ ssh poppy 'docker stop goatcounter && docker rm goatcounter'
 
 The bind-mounted data at `/mnt/user/appdata/goatcounter` is untouched by this.
 
-- [ ] **Step 5: Bring up the compose stack**
+- [ ] **Step 5: Push the tag and let the workflow deploy**
 
-Copy `docker-compose.yml` to Poppy (the deploy workflow does this; doing it by hand the first time makes the failure modes visible), then:
+The container name is now free, so `docker compose up -d` can take it.
 
 ```bash
-ssh poppy 'cd /mnt/user/appdata/goatcounter && \
-  IMAGE_TAG=geeks-v1.0.0 docker compose up -d && \
-  docker ps --filter name=goatcounter --format "{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"'
+git tag -a geeks-v1.0.0 -m "geeks-v1.0.0: terminal retheme"
+git push origin geeks-v1.0.0
+gh run list --workflow deploy.yml --limit 3
+gh run watch <run-id> --exit-status
+```
+
+Expected: green. Then confirm what landed:
+
+```bash
+ssh poppy 'docker ps --filter name=goatcounter --format "{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"'
 ```
 
 Expected: the container up, image `ghcr.io/oneofthegeeks/goatcounter:geeks-v1.0.0`, ports showing `0.0.0.0:8092->8080/tcp`.
+
+If the workflow fails after the old container is already gone, the site is down —
+bring it back immediately with the rollback at the end of this task, then debug
+the workflow with production restored.
 
 - [ ] **Step 6: Confirm the migrations ran and the data survived**
 
