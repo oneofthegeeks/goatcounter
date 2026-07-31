@@ -436,7 +436,10 @@ input:user-invalid { outline: 1px solid var(--invalid-outline) !important; box-s
  ****************************/
 /* Paths are identifiers, not prose — mono makes them scannable and stops
  * proportional spacing from making /a/b/c and /a/b/d look alike. */
-.rlink, .page-title, .count-list .col-path { font-family: var(--mono); font-size: .92em; }
+.rlink, .page-title, .count-list .col-path { font-family: var(--mono); }
+/* Size is set once on the cell; .rlink and .page-title are its children and
+ * inherit it. Setting it on all three compounds to ~.85em. */
+.count-list .col-path { font-size: .92em; }
 
 /* Any column of stacked figures gets fixed-width digits so they line up.
  * The Totals widget renders through table.count-list too, so these two
