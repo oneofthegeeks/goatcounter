@@ -41,6 +41,7 @@
     --hchart-border:     #f5aafb;                          /* Colour when you hover the Browsers, Systems, etc. chart bar */
     --hchart-bar:        #ebb7ef;
     --hchart-bar-hover:  #f9cffc;
+    --hchart-hover:      #ddd;                             /* Dangling var() reference found in pikaday.css (prev/next arrow hover bg); --link (#00f) needs a neutral bg here, not the pink hchart-bar-hover */
 
     --nav-bg:            #f8f8d9;                          /* Navigation at dashboard, settings, and footer */
     --nav-border:        #dede89;

@@ -9,7 +9,7 @@ import (
 )
 
 // themedCSS are the stylesheets that consume theme tokens.
-var themedCSS = []string{"backend.css", "shared.css", "style.css", "i18n.css"}
+var themedCSS = []string{"backend.css", "shared.css", "style.css", "i18n.css", "pikaday.css"}
 
 // Every var(--x) used in the CSS must be defined in BOTH vars.css (light) and
 // dark.css (dark). A token defined in only one file silently keeps the other
