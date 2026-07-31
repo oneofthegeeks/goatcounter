@@ -73,7 +73,10 @@ jobs:
           # Values that the REMOTE shell needs are passed as VAR=value assignments on
           # the ssh command line, each shell-quoted with printf %q on the runner side —
           # not interpolated into the heredoc — so no value can break out and run as
-          # code on either side, no matter what a tag/actor name contains.
+          # code on either side, no matter what a tag/actor name contains. This is an
+          # injection-safety measure only, not a confidentiality one: GHCR_TOKEN still
+          # sits in the remote bash -s process's environment (/proc/<pid>/environ) for
+          # its lifetime — see CLAUDE.md Gotchas for why that's an accepted trade-off.
           REMOTE_ENV=$(printf 'IMAGE_TAG=%q GHCR_ACTOR=%q GHCR_TOKEN=%q UNRAID_DEPLOY_PATH=%q' \
             "$IMAGE_TAG" "$GHCR_ACTOR" "$GHCR_TOKEN" "$UNRAID_DEPLOY_PATH")
           ssh -o StrictHostKeyChecking=accept-new "$UNRAID_USER@$UNRAID_HOST" \

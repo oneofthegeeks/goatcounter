@@ -66,3 +66,20 @@ to Poppy over Tailscale and runs `docker compose pull && up -d --remove-orphans`
   `docker run --rm --entrypoint id ghcr.io/oneofthegeeks/goatcounter:<tag>` before
   the first deploy; if it differs from `uid=1000(goatcounter)`, add `-u 1000` to the
   `adduser` line.
+- **Two compose files, name both explicitly.** This repo has both upstream's
+  `compose.yaml` (PostgreSQL, for running the test suite) and our
+  `docker-compose.yml` (the deploy stack). Docker Compose's file discovery
+  prefers `compose.yaml` when both exist, so a bare `docker compose ...` run
+  from the repo root silently targets upstream's postgres stack, not ours. On
+  Poppy this never bites — only `docker-compose.yml` gets copied into the
+  deploy directory — but locally, target ours explicitly:
+  `docker compose -f docker-compose.yml up -d`.
+- **`GHCR_TOKEN` sits in the remote process environment, not just its command
+  line.** `deploy.yml`'s "Pull & deploy" step passes `GITHUB_TOKEN` to the
+  Poppy-side `bash -s` via a `VAR=value` prefix rather than embedding it in the
+  script text — that's an injection-safety measure, not a confidentiality one.
+  The token is still readable from `/proc/<pid>/environ` by root or a same-uid
+  process on Poppy for the life of that `bash -s` process. Accepted trade-off:
+  the token is short-lived and narrowly scoped (`GITHUB_TOKEN`, not a long-lived
+  PAT), and Poppy is a single-operator box — piping it over stdin instead isn't
+  worth it since the heredoc already occupies stdin.

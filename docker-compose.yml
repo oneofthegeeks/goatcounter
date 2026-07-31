@@ -2,7 +2,7 @@ name: 'goatcounter'
 
 services:
   goatcounter:
-    image:          'ghcr.io/oneofthegeeks/goatcounter:${IMAGE_TAG}'
+    image:          'ghcr.io/oneofthegeeks/goatcounter:${IMAGE_TAG:-latest}'
     container_name: 'goatcounter'
     restart:        'unless-stopped'
     # CloudflaredTunnelWebsites routes stats.oneofthegeeks.com to
