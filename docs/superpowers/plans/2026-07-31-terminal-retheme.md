@@ -940,13 +940,27 @@ ssh poppy 'docker inspect goatcounter --format "{{json .Config}}" > /mnt/user/ap
   ls -lh /mnt/user/appdata/goatcounter/backups/'
 ```
 
-- [ ] **Step 3: Note the current pageview count, to compare after**
+- [ ] **Step 3: Record the aggregate row counts, to compare after**
+
+Do **not** count `hits` — it is the transient ingest queue, normally empty, so
+comparing it proves nothing. The tables below are what the dashboard renders.
 
 ```bash
 ssh poppy 'docker exec goatcounter goatcounter db query \
   -db sqlite+/home/goatcounter/goatcounter-data/db.sqlite3 \
-  "select count(*) as hits from hits"'
+  "select (select count(*) from hit_counts) as hit_counts,
+          (select count(*) from ref_counts) as ref_counts,
+          (select count(*) from browser_stats) as browsers,
+          (select count(*) from system_stats) as systems,
+          (select count(*) from location_stats) as locations,
+          (select count(*) from paths) as paths,
+          (select count(*) from sites) as sites,
+          (select count(*) from users) as users"'
 ```
+
+Expected as of 2026-07-31: `8, 8, 8, 9, 6, 5, 1, 1`. `hit_stats` is deliberately
+absent from this list — migration `2026-02-12-1-rm-hit_stats` drops it, and its
+6 rows are superseded by `hit_counts`.
 
 - [ ] **Step 4: Stop and remove the template container**
 
@@ -985,10 +999,17 @@ the workflow with production restored.
 ssh poppy 'docker logs goatcounter 2>&1 | tail -20'
 ssh poppy 'docker exec goatcounter goatcounter db query \
   -db sqlite+/home/goatcounter/goatcounter-data/db.sqlite3 \
-  "select count(*) as hits from hits"'
+  "select (select count(*) from hit_counts) as hit_counts,
+          (select count(*) from ref_counts) as ref_counts,
+          (select count(*) from browser_stats) as browsers,
+          (select count(*) from system_stats) as systems,
+          (select count(*) from location_stats) as locations,
+          (select count(*) from paths) as paths,
+          (select count(*) from sites) as sites,
+          (select count(*) from users) as users"'
 ```
 
-Expected: migrations logged once, and a hit count matching Step 3 (plus any pageviews recorded before the stop).
+Expected: the five migrations logged once, and counts matching Step 3 — allowing for growth from pageviews recorded between Step 3 and the stop. Any count that *dropped* means data loss: roll back.
 
 - [ ] **Step 7: Verify the public site**
 
