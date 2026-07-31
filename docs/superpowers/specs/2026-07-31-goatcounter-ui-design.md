@@ -34,12 +34,17 @@ Established by inspection on 2026-07-31, not assumed:
 - Site 1: cname `stats.oneofthegeeks.com`, link_domain `https://oneofthegeeks.com`.
 - No compose labels and no compose file on Poppy — the container was created
   from the Unraid Docker template UI.
-- **Networks do not overlap.** `goatcounter` is on the default `bridge` network;
-  `geeks-tracker-cloudflared` is on `springworksutah-task_appnet`. The tunnel
-  therefore reaches the app over the **host at port 8092**, not container-to-container.
-  Publishing 8092 on the host is the contract that must be preserved.
-- The cloudflared container is token-based with remote ingress config, so its
-  routing is managed in the Cloudflare dashboard and is not edited as part of this work.
+- **Ingress is `CloudflaredTunnelWebsites`**, which routes
+  `stats.oneofthegeeks.com` to `http://172.16.0.69:8092` — Poppy's LAN address
+  and the app's published host port, confirmed from that container's logs. It is
+  *not* `geeks-tracker-cloudflared`, which despite the similar name belongs to
+  the separate geeks-tracker app on `springworksutah-task_appnet`.
+- Because the ingress targets a host address rather than a container name or
+  docker IP, **the only contract is that something keeps listening on host port
+  8092**. Which docker network the container joins is irrelevant, so compose
+  creating its own network is safe.
+- The tunnel is token-based with ingress configured in the Cloudflare dashboard,
+  so its routing is not edited as part of this work.
 - Poppy already has `ghcr.io` credentials in `/root/.docker/config.json`.
 - `oneofthegeeks/goatcounter` is a **public** fork of `arp242/goatcounter`.
 - Fork HEAD `00034b04` (2026-07-20) is identical to upstream `main` — zero divergence.
@@ -136,6 +141,7 @@ implementation.
 - `docker-compose.yml` in the repo:
   - image `ghcr.io/oneofthegeeks/goatcounter:${IMAGE_TAG}`
   - ports `8092:8080` — preserves the tunnel's path to the app
+    (`CloudflaredTunnelWebsites` → `http://172.16.0.69:8092`)
   - bind mount `/mnt/user/appdata/goatcounter:/home/goatcounter/goatcounter-data`
   - env `GOATCOUNTER_LISTEN=:8080`, `GOATCOUNTER_AUTOMIGRATE=true`
   - container_name `goatcounter`
@@ -170,8 +176,8 @@ Rollback: restore the backed-up DB and recreate the template container.
 
 ## Explicitly unchanged
 
-The bind mount path, host port 8092, the cloudflared container and its ingress,
-DNS, and the site record in the database. The tracking snippet on
+The bind mount path, host port 8092, the `CloudflaredTunnelWebsites` container
+and its ingress, DNS, and the site record in the database. The tracking snippet on
 oneofthegeeks.com references the site's domain, not the image, so **no change to
 the website is required**.
 
