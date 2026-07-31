@@ -1,0 +1,15 @@
+name: 'goatcounter'
+
+services:
+  goatcounter:
+    image:          'ghcr.io/oneofthegeeks/goatcounter:${IMAGE_TAG}'
+    container_name: 'goatcounter'
+    restart:        'unless-stopped'
+    # CloudflaredTunnelWebsites routes stats.oneofthegeeks.com to
+    # http://172.16.0.69:8092 (Poppy's LAN address). Changing this port breaks
+    # the site; the docker network this container sits on does not matter.
+    ports:          ['8092:8080']
+    volumes:        ['/mnt/user/appdata/goatcounter:/home/goatcounter/goatcounter-data']
+    environment:
+      'GOATCOUNTER_LISTEN':      ':8080'
+      'GOATCOUNTER_AUTOMIGRATE': 'true'
