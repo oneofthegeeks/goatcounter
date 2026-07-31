@@ -38,6 +38,28 @@ through `v2.7` on this same repo history). `.github/workflows/deploy.yml` builds
 image, pushes to `ghcr.io/oneofthegeeks/goatcounter`, then scps `docker-compose.yml`
 to Poppy over Tailscale and runs `docker compose pull && up -d --remove-orphans`.
 
+**Live: `geeks-v1.0.0`, cut over 2026-07-31.** `stats.oneofthegeeks.com` now runs
+this fork instead of `arp242/goatcounter:2.7`. Same bind mount, same port, same
+database — the tracking snippet on oneofthegeeks.com was not touched.
+
+**The automated deploy path is not yet working end to end.** The 2026-07-31 cutover
+was done by hand. Before a tag can deploy on its own:
+- `UNRAID_SSH_KEY` is the one repo secret still missing. A dedicated CI keypair was
+  generated (`SHA256:Ec/z8Qys5xySrGTzqWV/qss//biMOlMrKO1iB/ZHdfs`) but its public
+  half was never appended to Poppy's `/root/.ssh/authorized_keys`, so `deploy.yml`'s
+  deploy job fails at the SSH step. The build job succeeds and does publish the
+  image, which is why the manual cutover worked. The other five secrets are set:
+  `TS_OAUTH_CLIENT_ID`/`_SECRET` (from Infisical Homelab `/Tailscale`),
+  `UNRAID_USER=root`, `UNRAID_HOST=100.85.82.18`,
+  `UNRAID_DEPLOY_PATH=/mnt/user/appdata/goatcounter`.
+- The GHCR package was made **public** on 2026-07-31 so Poppy can pull it. It had to
+  be: Poppy's stored `ghcr.io` credential is stale and the registry rejects it, and
+  docker offers that credential instead of falling back to anonymous. Pulling
+  required temporarily removing the `ghcr.io` entry from `/root/.docker/config.json`
+  (backup at `/mnt/user/appdata/_ops/docker-config.bak.2026-07-31`, restored
+  immediately after). Fix that credential before relying on `docker compose pull`
+  for a private image.
+
 ## Key Files
 - `public/vars.css` — light theme tokens.
 - `public/dark.css` — dark theme tokens.
@@ -53,19 +75,28 @@ to Poppy over Tailscale and runs `docker compose pull && up -d --remove-orphans`
   This is a hardcoded upstream route, not something this repo's compose file
   controls — changing the published port breaks the live site with no error here.
   The docker network the container sits on otherwise doesn't matter.
-- **First boot of the retheme image runs five schema migrations that are not
-  cleanly reversible.** A pre-cutover backup is kept at
-  `/mnt/user/appdata/goatcounter/backups/db-pre-geeks.sqlite3` on Poppy — restore
-  from that, don't try to migrate backwards.
-- **Container user uid must stay 1000** — the bind-mounted data dir on Poppy
-  (`/mnt/user/appdata/goatcounter`) is owned by uid 1000, and the Dockerfile's
-  `adduser -DG goatcounter goatcounter` (no explicit `-u`) is expected to land on
-  1000 on a fresh Alpine base since it's the first non-system user created in that
-  build stage — but this has not been confirmed against a real build (no docker
-  access in this environment). Verify with
-  `docker run --rm --entrypoint id ghcr.io/oneofthegeeks/goatcounter:<tag>` before
-  the first deploy; if it differs from `uid=1000(goatcounter)`, add `-u 1000` to the
-  `adduser` line.
+- **The five schema migrations ran on 2026-07-31 and are not cleanly reversible.**
+  `2026-02-12-1-rm-hit_stats` drops `hit_stats`; `2026-02-13-1-hits-width` rebuilds
+  `hits`. The 2.7 image can no longer read this database — rolling back means
+  restoring a backup, not re-pulling the old tag. Two backups on Poppy:
+  `/mnt/user/appdata/goatcounter/backups/db-pre-geeks.sqlite3` and
+  `db-pre-cutover-2026-07-31.sqlite3` (the latter is the one taken minutes before
+  the swap, WAL-checkpointed). The old container's full config is beside them in
+  `container-config.json` / `container-hostconfig.json` if it needs recreating.
+  Verified across the cutover: `hit_counts`/`ref_counts`/`browser_stats`/
+  `system_stats`/`location_stats`/`paths`/`sites`/`users` = 8/8/8/9/6/5/1/1 before
+  and after, and a test pageview recorded afterwards, proving the rebuilt `hits`
+  table still accepts writes. Do NOT verify with `select count(*) from hits` — that
+  table is the transient ingest queue and is normally empty, so it proves nothing.
+- **Container user uid is 1000** — confirmed 2026-07-31 against the built image
+  (`docker run --rm --entrypoint id ghcr.io/oneofthegeeks/goatcounter:geeks-v1.0.0`
+  → `uid=1000(goatcounter)`), matching the bind-mounted data dir's owner. The
+  Dockerfile's `adduser -DG goatcounter goatcounter` carries no explicit `-u`, so
+  re-check this if the base image ever changes; a mismatch leaves the container
+  unable to write the database.
+- **There is a synthetic pageview in the data**: path
+  `/_deploy-check-geeks-v1.0.0`, recorded 2026-07-31 to prove the ingest path
+  survived the `hits` rebuild. Safe to delete.
 - **Two compose files, name both explicitly.** This repo has both upstream's
   `compose.yaml` (PostgreSQL, for running the test suite) and our
   `docker-compose.yml` (the deploy stack). Docker Compose's file discovery
