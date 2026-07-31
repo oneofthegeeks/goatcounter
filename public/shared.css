@@ -33,7 +33,7 @@ pre, code, .monospace { font-family:'DejaVu Sans Mono', 'Bitstream Vera Sans Mon
 code, pre, kbd, samp  { background-color:var(--code-bg); color:var(--code-text); }
 code, kbd, samp       { padding:1px 2px; }
 pre                   { font-size:14px; line-height:130%; overflow:auto; max-height:500px; padding:.5em 1em;
-                        border-radius:2px; border-top:1px solid var(--pre-border); border-bottom:1px solid var(--pre-border); }
+                        border-radius:2px; border-top:1px solid var(--code-border); border-bottom:1px solid var(--code-border); }
 pre > code            { padding:0; box-shadow:none; border:none; }
 h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { background-color:transparent; box-shadow:none; color:inherit; }
 
@@ -45,12 +45,12 @@ sub, .sub             { top:.5ex; }
 table        { border-collapse: collapse; width: 100%; }
 table +table { margin-top: 2em; }
 caption      { font-weight: bold; }
-tr           { border-bottom: 1px solid #ddd; }
+tr           { border-bottom: 1px solid var(--table-border); }
 td, th       { padding: .2em .5em; hyphens: none; text-align: left; }
 td.right     { font-feature-settings: 'tnum' on; font-variant-numeric: tabular-nums; font-family: sans-serif; }
 td.right, th.right { text-align: right; }
 table > tr:last-child, tbody tr:last-child, tfoot tr:last-child { border-bottom: none; }
-tfoot tr:first-child { border-top: 1px solid #ddd; }
+tfoot tr:first-child { border-top: 1px solid var(--table-border); }
 
 /*** HR ***/
 hr { border: none; text-align: center; font-size: 60px; color: var(--text); opacity: .9; }
@@ -131,5 +131,5 @@ fieldset legend+p     { margin-top: 0; }
 .vertical label                { display: block; margin-top: .5em; }
 
 /*** Permalinks in headers ***/
-h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { font-size: .7em; line-height: 0; color: #999; }
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { font-size: .7em; line-height: 0; color: var(--heading-anchor); }
 h1 a:after, h2 a:after, h3 a:after, h4 a:after, h5 a:after, h6 a:after { content: "§"; }

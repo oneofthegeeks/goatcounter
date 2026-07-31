@@ -8,6 +8,7 @@
 
     --link:              #00f;                             /* <a> */
     --link-hover:        #6491ff;
+    --link-text:         #00f;                             /* Dangling var() reference found in backend.css; same value as --link */
 
     --input-text:        #252525;                          /* <input>, <select> */
     --input-bg:          #fff;
@@ -82,4 +83,15 @@
 
     --plus:                    #008837;                    /* Positive numbers (+5%) */
     --minus:                   #ac3ad3;                    /* Negative numbers (-5%) */
+
+    --table-border:      #ddd;                             /* <tr> rules in generic tables */
+    --heading-anchor:    #999;                             /* ¶ anchor links next to headings */
+    --rule:              #666;                             /* h3.border underline */
+    --muted-text:        #555;                             /* .page-n and similar de-emphasised text */
+    --detail-border:     #bbb;                             /* .hchart .detail */
+    --divider:           #aaa;                             /* tab nav and settings dividers */
+    --noscript-bg:       #ffcfcf;                          /* <noscript> warning banner */
+    --noscript-border:   #f88;
+    --invalid-outline:   #f00;                             /* input:user-invalid */
+    --invalid-bg:        #feeaea;
 }

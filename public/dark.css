@@ -8,6 +8,7 @@
 
     --link:              #8edff8;                          /* <a> */
     --link-hover:        #7acee9;
+    --link-text:         #8edff8;                          /* Dangling var() reference found in backend.css; same value as --link */
 
     --input-text:        #fff;                             /* <input>, <select> */
     --input-bg:          #000;
@@ -82,4 +83,15 @@
 
     --plus:                    #008837;                    /* Positive numbers (+5%) */
     --minus:                   #ac3ad3;                    /* Negative numbers (-5%) */
+
+    --table-border:      #333;
+    --heading-anchor:    #777;
+    --rule:              #666;
+    --muted-text:        #aaa;
+    --detail-border:     #444;
+    --divider:           #555;
+    --noscript-bg:       #4a1f1f;
+    --noscript-border:   #a33;
+    --invalid-outline:   #ff6b6b;
+    --invalid-bg:        #3a1a1a;
 }
