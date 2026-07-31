@@ -431,3 +431,24 @@ input:user-invalid { outline: 1px solid var(--invalid-outline) !important; box-s
     /* Print background colours for charts */
     canvas, .hchart .bar { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 }
+
+/*** Terminal theme: typography
+ ****************************/
+/* Paths are identifiers, not prose — mono makes them scannable and stops
+ * proportional spacing from making /a/b/c and /a/b/d look alike. */
+.rlink, .page-title, .count-list .col-path { font-family: var(--mono); font-size: .92em; }
+
+/* Any column of stacked figures gets fixed-width digits so they line up.
+ * The Totals widget renders through table.count-list too, so these two
+ * selectors cover both the Pages list and Totals. */
+.count-list .col-count,
+.count-list .col-count-diff,
+.chart-left, .chart-right { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' on; }
+
+/* Tighter rows: the default spacing wastes vertical space on a dense list. */
+.count-list td      { padding-top: .15em; padding-bottom: .15em; }
+.count-list-text td { padding: .35em; }
+
+/* Calmer headings — the defaults are larger than the content warrants. */
+h2 { font-size: 1.25rem; letter-spacing: -.01em; }
+h3 { font-size: 1.05rem; }

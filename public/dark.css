@@ -96,4 +96,6 @@
     --noscript-border:   #f85149;
     --invalid-outline:   #f85149;                          /* input:user-invalid */
     --invalid-bg:        #3a1519;
+
+    --mono:              'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', monospace; /* Not a colour, but kept beside the other tokens so theming stays in one place */
 }

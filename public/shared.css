@@ -29,7 +29,7 @@ h5, h6 { font-size: 1em; }
 img    { max-width: 100%; }
 figure { text-align: center; margin: 1rem 0; }
 
-pre, code, .monospace { font-family:'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', monospace; }
+pre, code, .monospace { font-family: var(--mono); }
 code, pre, kbd, samp  { background-color:var(--code-bg); color:var(--code-text); }
 code, kbd, samp       { padding:1px 2px; }
 pre                   { font-size:14px; line-height:130%; overflow:auto; max-height:500px; padding:.5em 1em;
