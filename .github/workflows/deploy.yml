@@ -52,18 +52,35 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.UNRAID_SSH_KEY }}
       - name: Copy compose to Poppy
+        env:
+          UNRAID_USER: ${{ secrets.UNRAID_USER }}
+          UNRAID_HOST: ${{ secrets.UNRAID_HOST }}
+          UNRAID_DEPLOY_PATH: ${{ secrets.UNRAID_DEPLOY_PATH }}
         run: |
-          ssh -o StrictHostKeyChecking=accept-new ${{ secrets.UNRAID_USER }}@${{ secrets.UNRAID_HOST }} \
-            "mkdir -p ${{ secrets.UNRAID_DEPLOY_PATH }}"
+          ssh -o StrictHostKeyChecking=accept-new "$UNRAID_USER@$UNRAID_HOST" \
+            "mkdir -p \"$UNRAID_DEPLOY_PATH\""
           scp -o StrictHostKeyChecking=accept-new docker-compose.yml \
-            ${{ secrets.UNRAID_USER }}@${{ secrets.UNRAID_HOST }}:${{ secrets.UNRAID_DEPLOY_PATH }}/docker-compose.yml
+            "$UNRAID_USER@$UNRAID_HOST:$UNRAID_DEPLOY_PATH/docker-compose.yml"
       - name: Pull & deploy
+        env:
+          UNRAID_USER: ${{ secrets.UNRAID_USER }}
+          UNRAID_HOST: ${{ secrets.UNRAID_HOST }}
+          UNRAID_DEPLOY_PATH: ${{ secrets.UNRAID_DEPLOY_PATH }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_ACTOR: ${{ github.actor }}
+          IMAGE_TAG: ${{ github.ref_name }}
         run: |
-          ssh -o StrictHostKeyChecking=accept-new ${{ secrets.UNRAID_USER }}@${{ secrets.UNRAID_HOST }} bash -s <<'EOF'
+          # Values that the REMOTE shell needs are passed as VAR=value assignments on
+          # the ssh command line, each shell-quoted with printf %q on the runner side —
+          # not interpolated into the heredoc — so no value can break out and run as
+          # code on either side, no matter what a tag/actor name contains.
+          REMOTE_ENV=$(printf 'IMAGE_TAG=%q GHCR_ACTOR=%q GHCR_TOKEN=%q UNRAID_DEPLOY_PATH=%q' \
+            "$IMAGE_TAG" "$GHCR_ACTOR" "$GHCR_TOKEN" "$UNRAID_DEPLOY_PATH")
+          ssh -o StrictHostKeyChecking=accept-new "$UNRAID_USER@$UNRAID_HOST" \
+            "$REMOTE_ENV bash -s" <<'EOF'
             set -e
-            cd ${{ secrets.UNRAID_DEPLOY_PATH }}
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            export IMAGE_TAG=${{ github.ref_name }}
+            cd "$UNRAID_DEPLOY_PATH"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_ACTOR" --password-stdin
             docker compose pull
             docker compose up -d --remove-orphans
             docker compose ps
