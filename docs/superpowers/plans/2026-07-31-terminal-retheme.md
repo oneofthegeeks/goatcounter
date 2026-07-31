@@ -604,7 +604,7 @@ Same hues, darkened for contrast on white, so switching themes changes brightnes
     --datepicker-dayname-text:       #656d76;
     --datepicker-day-text:           #1f2328;
     --datepicker-day-bg:             #f6f8fa;
-    --datepicker-day-hover-bg:       #aceebb;
+    --datepicker-day-hover-bg:       #1a7f37;
     --datepicker-today-text:         #0969da;
     --datepicker-selected-shadow:    #0969da;
     --datepicker-selected-text:      #0969da;
@@ -656,6 +656,19 @@ Switch **Settings → User → Theme → Light** and refresh. Walk the same surf
 - [ ] **Step 4: Check contrast**
 
 `#1f2328` on white is roughly 14:1 and `#656d76` roughly 5:1 — both AA. Verify one body paragraph and one muted label with the accessibility inspector.
+
+Two datepicker rules need checking specifically, because they invert: `pikaday.css:38`
+(`.pika-button:hover`) and `pikaday.css:41` (`.is-selected .pika-button`) both render
+`color: var(--bg)` — white, in this theme — on a token used as the background.
+
+- `--datepicker-day-hover-bg` is `#1a7f37` for exactly this reason. White on it is
+  about 5.1:1. An earlier draft of this plan specified `#aceebb`, a pale mint, which
+  would have put white text at roughly 1.5:1 — illegible. Do not revert it.
+- `--datepicker-selected-text` (`#0969da`) is used as a background by that second
+  rule. White on it is about 5.2:1.
+
+Compute both ratios and report the figures. If either lands under 4.5:1, darken the
+token in `vars.css` rather than editing `pikaday.css`.
 
 - [ ] **Step 5: Commit**
 
