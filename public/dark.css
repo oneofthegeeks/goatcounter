@@ -28,6 +28,7 @@
     --code-text:         #fff;                             /* <code>, <pre>, etc. */
     --code-bg:           #000;
     --code-border:       #d5d5d5;                          /* <pre> only */
+    --pre-border:        #d5d5d5;                          /* <pre> border; same value as --code-border */
 
     --tooltip-text:      #fff;                             /* Tooltips in the charts, some help text, "configure" button */
     --tooltip-bg:        #060606;

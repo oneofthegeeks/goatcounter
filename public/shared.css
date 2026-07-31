@@ -33,7 +33,7 @@ pre, code, .monospace { font-family:'DejaVu Sans Mono', 'Bitstream Vera Sans Mon
 code, pre, kbd, samp  { background-color:var(--code-bg); color:var(--code-text); }
 code, kbd, samp       { padding:1px 2px; }
 pre                   { font-size:14px; line-height:130%; overflow:auto; max-height:500px; padding:.5em 1em;
-                        border-radius:2px; border-top:1px solid var(--code-border); border-bottom:1px solid var(--code-border); }
+                        border-radius:2px; border-top:1px solid var(--pre-border); border-bottom:1px solid var(--pre-border); }
 pre > code            { padding:0; box-shadow:none; border:none; }
 h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { background-color:transparent; box-shadow:none; color:inherit; }
 
