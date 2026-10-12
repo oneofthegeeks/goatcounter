@@ -105,12 +105,6 @@ was done by hand. Before a tag can deploy on its own:
   Poppy this never bites — only `docker-compose.yml` gets copied into the
   deploy directory — but locally, target ours explicitly:
   `docker compose -f docker-compose.yml up -d`.
-- **`GHCR_TOKEN` sits in the remote process environment, not just its command
-  line.** `deploy.yml`'s "Pull & deploy" step passes `GITHUB_TOKEN` to the
-  Poppy-side `bash -s` via a `VAR=value` prefix rather than embedding it in the
-  script text — that's an injection-safety measure, not a confidentiality one.
-  The token is still readable from `/proc/<pid>/environ` by root or a same-uid
-  process on Poppy for the life of that `bash -s` process. Accepted trade-off:
-  the token is short-lived and narrowly scoped (`GITHUB_TOKEN`, not a long-lived
-  PAT), and Poppy is a single-operator box — piping it over stdin instead isn't
-  worth it since the heredoc already occupies stdin.
+- **Never `docker login` on Poppy from the deploy.** Poppy pulls with its durable GHCR
+  PAT; logging in with the job's `GITHUB_TOKEN` overwrote it with an expiring token and
+  broke pulls for every app on the box (removed 2026-10-12).
